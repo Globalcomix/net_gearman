@@ -303,7 +303,7 @@ class Net_Gearman_Client
             foreach ($this->conn as $conn) {
                 $read_conns[] = $conn->socket;
             }
-            @socket_select($read_conns, $write, $except, $socket_timeout);
+            socket_select($read_conns, $write, $except, 0);
             foreach ($this->conn as $conn) {
                 $err = socket_last_error($conn->socket);
                 // Error 11 is EAGAIN and is normal in non-blocking mode
@@ -319,6 +319,9 @@ class Net_Gearman_Client
                 if (count($resp)) {
                     $this->handleResponse($resp, $conn, $set);
                 }
+            }
+            if (empty($read_conns)) {
+                sleep($socket_timeout);
             }
 
         }

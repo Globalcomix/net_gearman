@@ -504,7 +504,7 @@ class Net_Gearman_Worker
                     socket_clear_error($conn->socket);
                 }
 
-                $success = @socket_select($read_conns, $write, $except, $socket_timeout[0], $socket_timeout[1]);
+                $success = socket_select($read_conns, $write, $except, 0);
 
                 if (call_user_func($monitor, true, $lastJobTime)) {
                     break;
@@ -528,6 +528,9 @@ class Net_Gearman_Worker
                 // after the socket_select call, then there
                 // is work to do and we need to break
                 $idle = empty($read_conns);
+                if ($idle) {
+                    time_nanosleep($socket_timeout[0], $socket_timeout[1]);
+                }
             }
         }
 
